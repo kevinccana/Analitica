@@ -1,0 +1,5 @@
+escenario,tasa,lgd,umbral_be,tasa_aprobacion,tasa_impago_aprobados,utilidad_total
+Base,0.18,0.6,0.2308,0.536,0.0097,11481802.0
+LGD alto (recupero menor),0.18,0.8,0.1837,0.463,0.0084,9218552.0
+Tasa alta,0.24,0.6,0.2857,0.598,0.0115,18274468.0
+Tasa baja,0.12,0.6,0.1667,0.431,0.0072,5539972.0

@@ -1,0 +1,34 @@
+# Datos (se versionan por referencia/hash, no el contenido)
+datos/raw/*
+datos/processed/*
+datos/external/*
+!datos/raw/.gitkeep
+!datos/processed/.gitkeep
+!datos/external/.gitkeep
+
+# Modelos serializados grandes
+notebooks/models/*.pkl
+notebooks/models/*.joblib
+notebooks/models/*.txt
+!notebooks/models/.gitkeep
+
+# Entorno
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# Jupyter
+.ipynb_checkpoints/
+
+# MLflow
+mlruns/
+mlflow.db
+
+# SO / editor
+.DS_Store
+Thumbs.db
+.vscode/
+
+# Configuración local del asistente (no es parte del proyecto)
+.claude/

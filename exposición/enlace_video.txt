@@ -1,0 +1,10 @@
+Enlace al video de la exposición grupal
+========================================
+
+[Pegar aquí el enlace directo al video: Google Drive, YouTube (no listado),
+OneDrive, etc. El enlace debe tener permisos de acceso para quien lo revise.]
+
+Usar este archivo solo si el video (.mp4) es demasiado grande para versionarse
+en el repositorio. Si el archivo cabe, colocar directamente
+"video_exposicion_grupal.mp4" en esta misma carpeta (exposición/) y eliminar
+este archivo o dejarlo vacío.

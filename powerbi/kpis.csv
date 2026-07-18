@@ -1,0 +1,2 @@
+n_total_clientes,tasa_impago_global,umbral_aprobacion_pd,tasa_aprobacion_optima,tasa_impago_aprobados_optima,utilidad_total_optima,n_test
+150000,0.0668,0.24,0.5479,0.0097,11472630.0,22500

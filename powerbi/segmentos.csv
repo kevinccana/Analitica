@@ -1,0 +1,5 @@
+cluster,n,pct_total,tasa_impago,edad_prom,utilizacion_prom,debtratio_prom,ingreso_prom,atraso90_prom,lineas_abiertas_prom,inmuebles_prom,nombre
+1,7654,5.1,0.45,45.65,0.79,197.81,5315.56,1.32,6.82,0.72,Alto riesgo
+3,48753,32.5,0.05,50.27,0.3,27.66,8829.04,0.02,12.09,1.78,Bajo riesgo (patrimonio alto)
+0,81519,54.35,0.04,53.83,0.3,99.77,5273.65,0.03,6.2,0.49,Bajo riesgo (perfil modesto)
+2,12074,8.05,0.04,54.34,0.27,3021.96,5113.33,0.02,10.02,1.7,Bajo riesgo (DebtRatio anómalo)

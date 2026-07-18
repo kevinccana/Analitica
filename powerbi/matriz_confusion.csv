@@ -1,0 +1,5 @@
+real,predicho,n
+No impago,No impago,15756
+No impago,Impago,5240
+Impago,No impago,256
+Impago,Impago,1248

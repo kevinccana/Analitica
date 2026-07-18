@@ -1,0 +1,827 @@
+{
+  "global": {
+    "n_total": 150000,
+    "tasa_impago_global": 0.0668
+  },
+  "segmentos": [
+    {
+      "n": 7654,
+      "tasa_impago": 0.4524,
+      "edad_prom": 45.6492,
+      "utilizacion_prom": 0.7913,
+      "debtratio_prom": 197.8094,
+      "ingreso_prom": 5315.5617,
+      "lineas_abiertas_prom": 6.8167,
+      "inmuebles_prom": 0.7235,
+      "pct_total": 5.1027,
+      "nombre": "Alto riesgo"
+    },
+    {
+      "n": 48753,
+      "tasa_impago": 0.0538,
+      "edad_prom": 50.2671,
+      "utilizacion_prom": 0.2968,
+      "debtratio_prom": 27.6567,
+      "ingreso_prom": 8829.0423,
+      "lineas_abiertas_prom": 12.0881,
+      "inmuebles_prom": 1.7807,
+      "pct_total": 32.502,
+      "nombre": "Bajo riesgo (patrimonio alto)"
+    },
+    {
+      "n": 81519,
+      "tasa_impago": 0.0431,
+      "edad_prom": 53.8306,
+      "utilizacion_prom": 0.2984,
+      "debtratio_prom": 99.7657,
+      "ingreso_prom": 5273.6457,
+      "lineas_abiertas_prom": 6.2003,
+      "inmuebles_prom": 0.4884,
+      "pct_total": 54.346,
+      "nombre": "Bajo riesgo (perfil modesto)"
+    },
+    {
+      "n": 12074,
+      "tasa_impago": 0.0352,
+      "edad_prom": 54.3355,
+      "utilizacion_prom": 0.2671,
+      "debtratio_prom": 3021.9603,
+      "ingreso_prom": 5113.3263,
+      "lineas_abiertas_prom": 10.019,
+      "inmuebles_prom": 1.7035,
+      "pct_total": 8.0493,
+      "nombre": "Bajo riesgo (DebtRatio anómalo)"
+    }
+  ],
+  "modelo": {
+    "logreg": {
+      "auc": 0.8623,
+      "ks": 0.5651
+    },
+    "lightgbm": {
+      "auc": 0.8694,
+      "ks": 0.5802
+    },
+    "roc_logreg": [
+      {
+        "fpr": 0.0,
+        "tpr": 0.0
+      },
+      {
+        "fpr": 0.0204,
+        "tpr": 0.3105
+      },
+      {
+        "fpr": 0.0408,
+        "tpr": 0.4328
+      },
+      {
+        "fpr": 0.0612,
+        "tpr": 0.5332
+      },
+      {
+        "fpr": 0.0816,
+        "tpr": 0.5831
+      },
+      {
+        "fpr": 0.102,
+        "tpr": 0.629
+      },
+      {
+        "fpr": 0.1224,
+        "tpr": 0.6602
+      },
+      {
+        "fpr": 0.1429,
+        "tpr": 0.6935
+      },
+      {
+        "fpr": 0.1633,
+        "tpr": 0.7221
+      },
+      {
+        "fpr": 0.1837,
+        "tpr": 0.744
+      },
+      {
+        "fpr": 0.2041,
+        "tpr": 0.7673
+      },
+      {
+        "fpr": 0.2245,
+        "tpr": 0.7846
+      },
+      {
+        "fpr": 0.2449,
+        "tpr": 0.8025
+      },
+      {
+        "fpr": 0.2653,
+        "tpr": 0.8165
+      },
+      {
+        "fpr": 0.2857,
+        "tpr": 0.8338
+      },
+      {
+        "fpr": 0.3061,
+        "tpr": 0.8497
+      },
+      {
+        "fpr": 0.3265,
+        "tpr": 0.8644
+      },
+      {
+        "fpr": 0.3469,
+        "tpr": 0.8737
+      },
+      {
+        "fpr": 0.3673,
+        "tpr": 0.8843
+      },
+      {
+        "fpr": 0.3878,
+        "tpr": 0.8969
+      },
+      {
+        "fpr": 0.4082,
+        "tpr": 0.9023
+      },
+      {
+        "fpr": 0.4286,
+        "tpr": 0.9129
+      },
+      {
+        "fpr": 0.449,
+        "tpr": 0.9189
+      },
+      {
+        "fpr": 0.4694,
+        "tpr": 0.9242
+      },
+      {
+        "fpr": 0.4898,
+        "tpr": 0.9282
+      },
+      {
+        "fpr": 0.5102,
+        "tpr": 0.9342
+      },
+      {
+        "fpr": 0.5306,
+        "tpr": 0.9415
+      },
+      {
+        "fpr": 0.551,
+        "tpr": 0.9481
+      },
+      {
+        "fpr": 0.5714,
+        "tpr": 0.9528
+      },
+      {
+        "fpr": 0.5918,
+        "tpr": 0.9588
+      },
+      {
+        "fpr": 0.6122,
+        "tpr": 0.9608
+      },
+      {
+        "fpr": 0.6327,
+        "tpr": 0.9641
+      },
+      {
+        "fpr": 0.6531,
+        "tpr": 0.9674
+      },
+      {
+        "fpr": 0.6735,
+        "tpr": 0.9721
+      },
+      {
+        "fpr": 0.6939,
+        "tpr": 0.9747
+      },
+      {
+        "fpr": 0.7143,
+        "tpr": 0.9781
+      },
+      {
+        "fpr": 0.7347,
+        "tpr": 0.9814
+      },
+      {
+        "fpr": 0.7551,
+        "tpr": 0.9834
+      },
+      {
+        "fpr": 0.7755,
+        "tpr": 0.984
+      },
+      {
+        "fpr": 0.7959,
+        "tpr": 0.986
+      },
+      {
+        "fpr": 0.8163,
+        "tpr": 0.988
+      },
+      {
+        "fpr": 0.8367,
+        "tpr": 0.9887
+      },
+      {
+        "fpr": 0.8571,
+        "tpr": 0.99
+      },
+      {
+        "fpr": 0.8776,
+        "tpr": 0.9927
+      },
+      {
+        "fpr": 0.898,
+        "tpr": 0.9947
+      },
+      {
+        "fpr": 0.9184,
+        "tpr": 0.998
+      },
+      {
+        "fpr": 0.9388,
+        "tpr": 0.9987
+      },
+      {
+        "fpr": 0.9592,
+        "tpr": 0.9987
+      },
+      {
+        "fpr": 0.9796,
+        "tpr": 0.9993
+      },
+      {
+        "fpr": 1.0,
+        "tpr": 1.0
+      }
+    ],
+    "roc_lightgbm": [
+      {
+        "fpr": 0.0,
+        "tpr": 0.0053
+      },
+      {
+        "fpr": 0.0204,
+        "tpr": 0.3098
+      },
+      {
+        "fpr": 0.0408,
+        "tpr": 0.4382
+      },
+      {
+        "fpr": 0.0612,
+        "tpr": 0.5286
+      },
+      {
+        "fpr": 0.0816,
+        "tpr": 0.5971
+      },
+      {
+        "fpr": 0.102,
+        "tpr": 0.6483
+      },
+      {
+        "fpr": 0.1224,
+        "tpr": 0.6755
+      },
+      {
+        "fpr": 0.1429,
+        "tpr": 0.7021
+      },
+      {
+        "fpr": 0.1633,
+        "tpr": 0.7347
+      },
+      {
+        "fpr": 0.1837,
+        "tpr": 0.7566
+      },
+      {
+        "fpr": 0.2041,
+        "tpr": 0.7786
+      },
+      {
+        "fpr": 0.2245,
+        "tpr": 0.8012
+      },
+      {
+        "fpr": 0.2449,
+        "tpr": 0.8211
+      },
+      {
+        "fpr": 0.2653,
+        "tpr": 0.8391
+      },
+      {
+        "fpr": 0.2857,
+        "tpr": 0.8531
+      },
+      {
+        "fpr": 0.3061,
+        "tpr": 0.8657
+      },
+      {
+        "fpr": 0.3265,
+        "tpr": 0.8816
+      },
+      {
+        "fpr": 0.3469,
+        "tpr": 0.8896
+      },
+      {
+        "fpr": 0.3673,
+        "tpr": 0.8976
+      },
+      {
+        "fpr": 0.3878,
+        "tpr": 0.9056
+      },
+      {
+        "fpr": 0.4082,
+        "tpr": 0.9162
+      },
+      {
+        "fpr": 0.4286,
+        "tpr": 0.9222
+      },
+      {
+        "fpr": 0.449,
+        "tpr": 0.9229
+      },
+      {
+        "fpr": 0.4694,
+        "tpr": 0.9315
+      },
+      {
+        "fpr": 0.4898,
+        "tpr": 0.9342
+      },
+      {
+        "fpr": 0.5102,
+        "tpr": 0.9428
+      },
+      {
+        "fpr": 0.5306,
+        "tpr": 0.9461
+      },
+      {
+        "fpr": 0.551,
+        "tpr": 0.9568
+      },
+      {
+        "fpr": 0.5714,
+        "tpr": 0.9601
+      },
+      {
+        "fpr": 0.5918,
+        "tpr": 0.9634
+      },
+      {
+        "fpr": 0.6122,
+        "tpr": 0.9688
+      },
+      {
+        "fpr": 0.6327,
+        "tpr": 0.9707
+      },
+      {
+        "fpr": 0.6531,
+        "tpr": 0.9734
+      },
+      {
+        "fpr": 0.6735,
+        "tpr": 0.9781
+      },
+      {
+        "fpr": 0.6939,
+        "tpr": 0.9801
+      },
+      {
+        "fpr": 0.7143,
+        "tpr": 0.982
+      },
+      {
+        "fpr": 0.7347,
+        "tpr": 0.9827
+      },
+      {
+        "fpr": 0.7551,
+        "tpr": 0.9834
+      },
+      {
+        "fpr": 0.7755,
+        "tpr": 0.9867
+      },
+      {
+        "fpr": 0.7959,
+        "tpr": 0.9887
+      },
+      {
+        "fpr": 0.8163,
+        "tpr": 0.9887
+      },
+      {
+        "fpr": 0.8367,
+        "tpr": 0.99
+      },
+      {
+        "fpr": 0.8571,
+        "tpr": 0.99
+      },
+      {
+        "fpr": 0.8776,
+        "tpr": 0.9934
+      },
+      {
+        "fpr": 0.898,
+        "tpr": 0.994
+      },
+      {
+        "fpr": 0.9184,
+        "tpr": 0.9947
+      },
+      {
+        "fpr": 0.9388,
+        "tpr": 0.9973
+      },
+      {
+        "fpr": 0.9592,
+        "tpr": 0.9973
+      },
+      {
+        "fpr": 0.9796,
+        "tpr": 0.9993
+      },
+      {
+        "fpr": 1.0,
+        "tpr": 1.0
+      }
+    ],
+    "umbral_optimo": 0.4113,
+    "matriz_confusion": [
+      [
+        15756,
+        5240
+      ],
+      [
+        256,
+        1248
+      ]
+    ],
+    "n_test": 22500
+  },
+  "edad": [
+    {
+      "grupo": "<35",
+      "n": 3234,
+      "tasa_impago": 0.1209,
+      "auc": 0.8463
+    },
+    {
+      "grupo": "35-49",
+      "n": 7326,
+      "tasa_impago": 0.0842,
+      "auc": 0.8458
+    },
+    {
+      "grupo": "50-64",
+      "n": 7683,
+      "tasa_impago": 0.0523,
+      "auc": 0.8648
+    },
+    {
+      "grupo": "65+",
+      "n": 4257,
+      "tasa_impago": 0.0221,
+      "auc": 0.8667
+    }
+  ],
+  "prescriptivo": {
+    "supuestos": {
+      "tasa": 0.18,
+      "lgd": 0.6,
+      "monto": 10000,
+      "max_default_rate": 0.05
+    },
+    "umbral_equilibrio": 0.2308,
+    "curva_politica": [
+      {
+        "umbral_pd": 0.02,
+        "tasa_aprobacion": 0.0095,
+        "tasa_impago_aprobados": 0.0,
+        "utilidad_total": 359886.0
+      },
+      {
+        "umbral_pd": 0.04,
+        "tasa_aprobacion": 0.0592,
+        "tasa_impago_aprobados": 0.003,
+        "utilidad_total": 2099640.0
+      },
+      {
+        "umbral_pd": 0.06,
+        "tasa_aprobacion": 0.1301,
+        "tasa_impago_aprobados": 0.0048,
+        "utilidad_total": 4350296.0
+      },
+      {
+        "umbral_pd": 0.08,
+        "tasa_aprobacion": 0.1995,
+        "tasa_impago_aprobados": 0.004,
+        "utilidad_total": 6308286.0
+      },
+      {
+        "umbral_pd": 0.1,
+        "tasa_aprobacion": 0.2662,
+        "tasa_impago_aprobados": 0.0045,
+        "utilidad_total": 7959474.0
+      },
+      {
+        "umbral_pd": 0.12,
+        "tasa_aprobacion": 0.3238,
+        "tasa_impago_aprobados": 0.0055,
+        "utilidad_total": 9180773.0
+      },
+      {
+        "umbral_pd": 0.14,
+        "tasa_aprobacion": 0.374,
+        "tasa_impago_aprobados": 0.0063,
+        "utilidad_total": 10070061.0
+      },
+      {
+        "umbral_pd": 0.16,
+        "tasa_aprobacion": 0.4183,
+        "tasa_impago_aprobados": 0.0067,
+        "utilidad_total": 10699118.0
+      },
+      {
+        "umbral_pd": 0.18,
+        "tasa_aprobacion": 0.4565,
+        "tasa_impago_aprobados": 0.0083,
+        "utilidad_total": 11108656.0
+      },
+      {
+        "umbral_pd": 0.2,
+        "tasa_aprobacion": 0.4906,
+        "tasa_impago_aprobados": 0.0091,
+        "utilidad_total": 11353377.0
+      },
+      {
+        "umbral_pd": 0.22,
+        "tasa_aprobacion": 0.5213,
+        "tasa_impago_aprobados": 0.0099,
+        "utilidad_total": 11467415.0
+      },
+      {
+        "umbral_pd": 0.24,
+        "tasa_aprobacion": 0.5479,
+        "tasa_impago_aprobados": 0.0097,
+        "utilidad_total": 11472630.0
+      },
+      {
+        "umbral_pd": 0.26,
+        "tasa_aprobacion": 0.5719,
+        "tasa_impago_aprobados": 0.0106,
+        "utilidad_total": 11393545.0
+      },
+      {
+        "umbral_pd": 0.28,
+        "tasa_aprobacion": 0.5933,
+        "tasa_impago_aprobados": 0.0113,
+        "utilidad_total": 11245722.0
+      },
+      {
+        "umbral_pd": 0.3,
+        "tasa_aprobacion": 0.6122,
+        "tasa_impago_aprobados": 0.0119,
+        "utilidad_total": 11048331.0
+      },
+      {
+        "umbral_pd": 0.32,
+        "tasa_aprobacion": 0.6333,
+        "tasa_impago_aprobados": 0.0124,
+        "utilidad_total": 10755783.0
+      },
+      {
+        "umbral_pd": 0.34,
+        "tasa_aprobacion": 0.6521,
+        "tasa_impago_aprobados": 0.0132,
+        "utilidad_total": 10428048.0
+      },
+      {
+        "umbral_pd": 0.36,
+        "tasa_aprobacion": 0.67,
+        "tasa_impago_aprobados": 0.0142,
+        "utilidad_total": 10055679.0
+      },
+      {
+        "umbral_pd": 0.38,
+        "tasa_aprobacion": 0.6856,
+        "tasa_impago_aprobados": 0.0148,
+        "utilidad_total": 9674148.0
+      },
+      {
+        "umbral_pd": 0.4,
+        "tasa_aprobacion": 0.7024,
+        "tasa_impago_aprobados": 0.0158,
+        "utilidad_total": 9205032.0
+      },
+      {
+        "umbral_pd": 0.42,
+        "tasa_aprobacion": 0.7191,
+        "tasa_impago_aprobados": 0.017,
+        "utilidad_total": 8681231.0
+      },
+      {
+        "umbral_pd": 0.44,
+        "tasa_aprobacion": 0.7328,
+        "tasa_impago_aprobados": 0.0178,
+        "utilidad_total": 8199352.0
+      },
+      {
+        "umbral_pd": 0.46,
+        "tasa_aprobacion": 0.7467,
+        "tasa_impago_aprobados": 0.0187,
+        "utilidad_total": 7668031.0
+      },
+      {
+        "umbral_pd": 0.48,
+        "tasa_aprobacion": 0.7615,
+        "tasa_impago_aprobados": 0.0197,
+        "utilidad_total": 7045833.0
+      },
+      {
+        "umbral_pd": 0.5,
+        "tasa_aprobacion": 0.7749,
+        "tasa_impago_aprobados": 0.0206,
+        "utilidad_total": 6435688.0
+      },
+      {
+        "umbral_pd": 0.52,
+        "tasa_aprobacion": 0.7872,
+        "tasa_impago_aprobados": 0.0217,
+        "utilidad_total": 5834476.0
+      },
+      {
+        "umbral_pd": 0.54,
+        "tasa_aprobacion": 0.7998,
+        "tasa_impago_aprobados": 0.0224,
+        "utilidad_total": 5172445.0
+      },
+      {
+        "umbral_pd": 0.56,
+        "tasa_aprobacion": 0.8134,
+        "tasa_impago_aprobados": 0.0239,
+        "utilidad_total": 4408983.0
+      },
+      {
+        "umbral_pd": 0.58,
+        "tasa_aprobacion": 0.8247,
+        "tasa_impago_aprobados": 0.0247,
+        "utilidad_total": 3737431.0
+      },
+      {
+        "umbral_pd": 0.6,
+        "tasa_aprobacion": 0.8366,
+        "tasa_impago_aprobados": 0.0257,
+        "utilidad_total": 2989512.0
+      },
+      {
+        "umbral_pd": 0.62,
+        "tasa_aprobacion": 0.8475,
+        "tasa_impago_aprobados": 0.0262,
+        "utilidad_total": 2261983.0
+      },
+      {
+        "umbral_pd": 0.64,
+        "tasa_aprobacion": 0.8585,
+        "tasa_impago_aprobados": 0.0271,
+        "utilidad_total": 1489962.0
+      },
+      {
+        "umbral_pd": 0.66,
+        "tasa_aprobacion": 0.8677,
+        "tasa_impago_aprobados": 0.0284,
+        "utilidad_total": 816342.0
+      },
+      {
+        "umbral_pd": 0.68,
+        "tasa_aprobacion": 0.8776,
+        "tasa_impago_aprobados": 0.0297,
+        "utilidad_total": 48828.0
+      },
+      {
+        "umbral_pd": 0.7,
+        "tasa_aprobacion": 0.8861,
+        "tasa_impago_aprobados": 0.031,
+        "utilidad_total": -631098.0
+      },
+      {
+        "umbral_pd": 0.72,
+        "tasa_aprobacion": 0.8949,
+        "tasa_impago_aprobados": 0.0325,
+        "utilidad_total": -1375569.0
+      },
+      {
+        "umbral_pd": 0.74,
+        "tasa_aprobacion": 0.9033,
+        "tasa_impago_aprobados": 0.0341,
+        "utilidad_total": -2112084.0
+      },
+      {
+        "umbral_pd": 0.76,
+        "tasa_aprobacion": 0.9103,
+        "tasa_impago_aprobados": 0.0353,
+        "utilidad_total": -2746777.0
+      },
+      {
+        "umbral_pd": 0.78,
+        "tasa_aprobacion": 0.9178,
+        "tasa_impago_aprobados": 0.0371,
+        "utilidad_total": -3457196.0
+      },
+      {
+        "umbral_pd": 0.8,
+        "tasa_aprobacion": 0.9245,
+        "tasa_impago_aprobados": 0.0382,
+        "utilidad_total": -4110090.0
+      },
+      {
+        "umbral_pd": 0.82,
+        "tasa_aprobacion": 0.9308,
+        "tasa_impago_aprobados": 0.0397,
+        "utilidad_total": -4752091.0
+      },
+      {
+        "umbral_pd": 0.84,
+        "tasa_aprobacion": 0.9376,
+        "tasa_impago_aprobados": 0.0415,
+        "utilidad_total": -5468662.0
+      },
+      {
+        "umbral_pd": 0.86,
+        "tasa_aprobacion": 0.9476,
+        "tasa_impago_aprobados": 0.0441,
+        "utilidad_total": -6555890.0
+      },
+      {
+        "umbral_pd": 0.88,
+        "tasa_aprobacion": 0.9576,
+        "tasa_impago_aprobados": 0.0472,
+        "utilidad_total": -7683251.0
+      }
+    ],
+    "optimo": {
+      "umbral_pd": 0.24,
+      "tasa_aprobacion": 0.5479,
+      "tasa_impago_aprobados": 0.0097,
+      "utilidad_total": 11472630.0
+    },
+    "sensibilidad": [
+      {
+        "escenario": "Base",
+        "tasa": 0.18,
+        "lgd": 0.6,
+        "umbral_be": 0.2308,
+        "tasa_aprobacion": 0.5362,
+        "tasa_impago_aprobados": 0.0097,
+        "utilidad_total": 11481802.0
+      },
+      {
+        "escenario": "LGD alto",
+        "tasa": 0.18,
+        "lgd": 0.8,
+        "umbral_be": 0.1837,
+        "tasa_aprobacion": 0.4627,
+        "tasa_impago_aprobados": 0.0084,
+        "utilidad_total": 9218552.0
+      },
+      {
+        "escenario": "Tasa alta",
+        "tasa": 0.24,
+        "lgd": 0.6,
+        "umbral_be": 0.2857,
+        "tasa_aprobacion": 0.5982,
+        "tasa_impago_aprobados": 0.0115,
+        "utilidad_total": 18274468.0
+      },
+      {
+        "escenario": "Tasa baja",
+        "tasa": 0.12,
+        "lgd": 0.6,
+        "umbral_be": 0.1667,
+        "tasa_aprobacion": 0.4314,
+        "tasa_impago_aprobados": 0.0072,
+        "utilidad_total": 5539972.0
+      }
+    ]
+  }
+}

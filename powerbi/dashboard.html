@@ -1,0 +1,702 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Tablero — Riesgo Crediticio</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --surface-page:   #f9f9f7;
+    --surface-1:      #fcfcfb;
+    --text-primary:   #0b0b0b;
+    --text-secondary: #52514e;
+    --text-muted:     #898781;
+    --grid-line:      #e1e0d9;
+    --axis-line:      #c3c2b7;
+    --border-hair:    rgba(11,11,11,0.10);
+
+    --series-1: #2a78d6; /* blue */
+    --series-2: #1baf7a; /* aqua */
+    --series-3: #eda100; /* yellow */
+    --series-4: #008300; /* green */
+
+    --status-good:     #0ca30c;
+    --status-warning:  #fab219;
+    --status-critical: #d03b3b;
+  }
+  :root[data-theme="dark"], :root:not([data-theme="light"]) {
+    @media (prefers-color-scheme: dark) {
+      --surface-page:   #0d0d0d;
+      --surface-1:      #1a1a19;
+      --text-primary:   #ffffff;
+      --text-secondary: #c3c2b7;
+      --text-muted:     #898781;
+      --grid-line:      #2c2c2a;
+      --axis-line:      #383835;
+      --border-hair:    rgba(255,255,255,0.10);
+
+      --series-1: #3987e5;
+      --series-2: #199e70;
+      --series-3: #c98500;
+      --series-4: #008300;
+
+      --status-good:     #0ca30c;
+      --status-warning:  #fab219;
+      --status-critical: #d03b3b;
+    }
+  }
+  :root[data-theme="dark"] {
+    --surface-page:   #0d0d0d;
+    --surface-1:      #1a1a19;
+    --text-primary:   #ffffff;
+    --text-secondary: #c3c2b7;
+    --text-muted:     #898781;
+    --grid-line:      #2c2c2a;
+    --axis-line:      #383835;
+    --border-hair:    rgba(255,255,255,0.10);
+    --series-1: #3987e5;
+    --series-2: #199e70;
+    --series-3: #c98500;
+    --series-4: #008300;
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--surface-page);
+    color: var(--text-primary);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  body { padding: 24px 20px 60px; max-width: 1180px; margin: 0 auto; }
+
+  header.page-head { margin-bottom: 28px; }
+  header.page-head h1 { font-size: 1.6rem; margin: 0 0 6px; }
+  header.page-head p { color: var(--text-secondary); margin: 2px 0; font-size: 0.92rem; }
+  .theme-toggle {
+    position: fixed; top: 16px; right: 16px;
+    background: var(--surface-1); color: var(--text-secondary);
+    border: 1px solid var(--border-hair); border-radius: 8px;
+    padding: 6px 10px; font-size: 0.8rem; cursor: pointer;
+  }
+
+  .kpi-row {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px; margin-bottom: 32px;
+  }
+  .stat-tile {
+    background: var(--surface-1); border: 1px solid var(--border-hair);
+    border-radius: 10px; padding: 14px 16px;
+  }
+  .stat-tile .label { font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 6px; }
+  .stat-tile .value { font-size: 1.5rem; font-weight: 600; font-variant-numeric: proportional-nums; }
+  .stat-tile .sub { font-size: 0.74rem; color: var(--text-muted); margin-top: 4px; }
+
+  section.card {
+    background: var(--surface-1); border: 1px solid var(--border-hair);
+    border-radius: 12px; padding: 20px 22px; margin-bottom: 24px;
+  }
+  section.card h2 { font-size: 1.15rem; margin: 0 0 4px; }
+  section.card > .card-desc { color: var(--text-secondary); font-size: 0.88rem; margin: 0 0 16px; max-width: 74ch; }
+
+  .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  @media (max-width: 820px) { .chart-grid { grid-template-columns: 1fr; } }
+
+  .chart-block { position: relative; }
+  .chart-block h3 { font-size: 0.92rem; margin: 0 0 8px; color: var(--text-primary); font-weight: 600; }
+  svg.chart { width: 100%; height: auto; display: block; overflow: visible; }
+  .axis-label { fill: var(--text-muted); font-size: 10px; }
+  .grid-line { stroke: var(--grid-line); stroke-width: 1; }
+  .axis-line { stroke: var(--axis-line); stroke-width: 1; }
+  .legend { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 8px; font-size: 0.78rem; color: var(--text-secondary); }
+  .legend .key { display: inline-flex; align-items: center; gap: 6px; }
+  .legend .swatch { width: 14px; height: 3px; border-radius: 2px; display: inline-block; }
+  .legend .swatch.bar { width: 10px; height: 10px; border-radius: 2px; }
+
+  .tooltip {
+    position: fixed; pointer-events: none; z-index: 50;
+    background: var(--text-primary); color: var(--surface-1);
+    font-size: 0.76rem; padding: 6px 9px; border-radius: 6px;
+    max-width: 220px; opacity: 0; transition: opacity 0.08s ease;
+    line-height: 1.5;
+  }
+  .tooltip.visible { opacity: 0.96; }
+  .tooltip .t-row { display: flex; justify-content: space-between; gap: 10px; }
+  .tooltip .t-val { font-weight: 700; }
+
+  details.table-toggle { margin-top: 10px; }
+  details.table-toggle > summary {
+    cursor: pointer; font-size: 0.78rem; color: var(--text-secondary);
+    user-select: none;
+  }
+  table.data-table {
+    width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.8rem;
+  }
+  table.data-table th, table.data-table td {
+    text-align: right; padding: 6px 8px; border-bottom: 1px solid var(--grid-line);
+    font-variant-numeric: tabular-nums;
+  }
+  table.data-table th:first-child, table.data-table td:first-child { text-align: left; font-variant-numeric: proportional-nums; }
+  table.data-table th { color: var(--text-secondary); font-weight: 600; }
+
+  .callout-row { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 18px; }
+  .callout {
+    flex: 1 1 160px; border: 1px solid var(--border-hair); border-radius: 10px;
+    padding: 12px 14px;
+  }
+  .callout .label { font-size: 0.76rem; color: var(--text-secondary); }
+  .callout .value { font-size: 1.3rem; font-weight: 600; margin-top: 4px; }
+  .callout.winner { border-color: var(--series-1); }
+
+  .rec-box {
+    border-left: 3px solid var(--series-1); padding: 12px 16px;
+    background: color-mix(in srgb, var(--series-1) 6%, var(--surface-1));
+    border-radius: 0 8px 8px 0; font-size: 0.92rem; line-height: 1.55;
+  }
+
+  footer.page-foot {
+    margin-top: 40px; padding-top: 18px; border-top: 1px solid var(--border-hair);
+    color: var(--text-muted); font-size: 0.78rem; line-height: 1.6;
+  }
+  footer.page-foot a { color: var(--text-secondary); }
+</style>
+</head>
+<body>
+
+<button class="theme-toggle" id="themeToggle" type="button">Modo oscuro</button>
+
+<header class="page-head">
+  <h1>Tablero de Riesgo Crediticio</h1>
+  <p>Proyecto Grupal — Analítica de Datos · Dataset: Give Me Some Credit (Kaggle) · 150,000 clientes</p>
+  <p>Generado a partir de los notebooks P1–P4. Guía de uso al final de esta página.</p>
+</header>
+
+<div class="kpi-row" id="kpiRow"></div>
+
+<section class="card">
+  <h2>1. Segmentación de riesgo de la cartera</h2>
+  <p class="card-desc">Clustering K-Means (k=4) sobre variables de comportamiento crediticio (P2). Cada barra es un segmento de clientes con perfil de riesgo distinto.</p>
+  <div class="chart-grid">
+    <div class="chart-block">
+      <h3>Tasa de impago por segmento</h3>
+      <svg class="chart" id="chartSegmentos" viewBox="0 0 520 300"></svg>
+      <div class="legend" id="legendSegmentos"></div>
+    </div>
+    <div class="chart-block">
+      <h3>Tamaño de cada segmento (% de la cartera)</h3>
+      <svg class="chart" id="chartSegmentosPct" viewBox="0 0 520 300"></svg>
+    </div>
+  </div>
+  <details class="table-toggle">
+    <summary>Ver tabla de segmentos</summary>
+    <table class="data-table" id="tableSegmentos"></table>
+  </details>
+</section>
+
+<section class="card">
+  <h2>2. Desempeño del modelo predictivo</h2>
+  <p class="card-desc">Comparación entre el baseline (regresión logística) y el modelo final (LightGBM) sobre el conjunto de prueba (P3).</p>
+  <div class="callout-row" id="modelCallouts"></div>
+  <div class="chart-grid">
+    <div class="chart-block">
+      <h3>Curva ROC</h3>
+      <svg class="chart" id="chartRoc" viewBox="0 0 520 320"></svg>
+      <div class="legend" id="legendRoc"></div>
+    </div>
+    <div class="chart-block">
+      <h3>Tasa de impago real por tramo de edad</h3>
+      <svg class="chart" id="chartEdad" viewBox="0 0 520 320"></svg>
+      <p style="font-size:0.76rem;color:var(--text-secondary);margin-top:6px;">AUC del modelo dentro de cada tramo, en la tabla.</p>
+    </div>
+  </div>
+  <details class="table-toggle">
+    <summary>Ver matriz de confusión y desagregación por edad (umbral óptimo = 0.411)</summary>
+    <div class="chart-grid">
+      <table class="data-table" id="tableConfusion"></table>
+      <table class="data-table" id="tableEdad"></table>
+    </div>
+  </details>
+</section>
+
+<section class="card">
+  <h2>3. Política de aprobación (modelo prescriptivo)</h2>
+  <p class="card-desc">
+    Supuestos: tasa de interés 18%, LGD 60%, monto uniforme US$ 10,000, límite de riesgo de referencia 5% de impago en la cartera aprobada (P4).
+  </p>
+  <div class="chart-grid">
+    <div class="chart-block">
+      <h3>Utilidad esperada total vs. umbral de aprobación</h3>
+      <svg class="chart" id="chartUtilidad" viewBox="0 0 520 300"></svg>
+    </div>
+    <div class="chart-block">
+      <h3>Tasa de impago en la cartera aprobada vs. umbral</h3>
+      <svg class="chart" id="chartRiesgo" viewBox="0 0 520 300"></svg>
+    </div>
+  </div>
+  <div class="rec-box" id="recomendacion" style="margin-top:18px;"></div>
+  <details class="table-toggle">
+    <summary>Ver análisis de sensibilidad (tasa de interés y LGD)</summary>
+    <table class="data-table" id="tableSensibilidad"></table>
+  </details>
+</section>
+
+<footer class="page-foot" id="guia">
+  <!-- filled by JS -->
+</footer>
+
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+const DATA = {"global": {"n_total": 150000, "tasa_impago_global": 0.0668}, "segmentos": [{"n": 7654, "tasa_impago": 0.4524, "edad_prom": 45.6492, "utilizacion_prom": 0.7913, "debtratio_prom": 197.8094, "ingreso_prom": 5315.5617, "lineas_abiertas_prom": 6.8167, "inmuebles_prom": 0.7235, "pct_total": 5.1027, "nombre": "Alto riesgo"}, {"n": 48753, "tasa_impago": 0.0538, "edad_prom": 50.2671, "utilizacion_prom": 0.2968, "debtratio_prom": 27.6567, "ingreso_prom": 8829.0423, "lineas_abiertas_prom": 12.0881, "inmuebles_prom": 1.7807, "pct_total": 32.502, "nombre": "Bajo riesgo (patrimonio alto)"}, {"n": 81519, "tasa_impago": 0.0431, "edad_prom": 53.8306, "utilizacion_prom": 0.2984, "debtratio_prom": 99.7657, "ingreso_prom": 5273.6457, "lineas_abiertas_prom": 6.2003, "inmuebles_prom": 0.4884, "pct_total": 54.346, "nombre": "Bajo riesgo (perfil modesto)"}, {"n": 12074, "tasa_impago": 0.0352, "edad_prom": 54.3355, "utilizacion_prom": 0.2671, "debtratio_prom": 3021.9603, "ingreso_prom": 5113.3263, "lineas_abiertas_prom": 10.019, "inmuebles_prom": 1.7035, "pct_total": 8.0493, "nombre": "Bajo riesgo (DebtRatio anómalo)"}], "modelo": {"logreg": {"auc": 0.8623, "ks": 0.5651}, "lightgbm": {"auc": 0.8694, "ks": 0.5802}, "roc_logreg": [{"fpr": 0.0, "tpr": 0.0}, {"fpr": 0.0204, "tpr": 0.3105}, {"fpr": 0.0408, "tpr": 0.4328}, {"fpr": 0.0612, "tpr": 0.5332}, {"fpr": 0.0816, "tpr": 0.5831}, {"fpr": 0.102, "tpr": 0.629}, {"fpr": 0.1224, "tpr": 0.6602}, {"fpr": 0.1429, "tpr": 0.6935}, {"fpr": 0.1633, "tpr": 0.7221}, {"fpr": 0.1837, "tpr": 0.744}, {"fpr": 0.2041, "tpr": 0.7673}, {"fpr": 0.2245, "tpr": 0.7846}, {"fpr": 0.2449, "tpr": 0.8025}, {"fpr": 0.2653, "tpr": 0.8165}, {"fpr": 0.2857, "tpr": 0.8338}, {"fpr": 0.3061, "tpr": 0.8497}, {"fpr": 0.3265, "tpr": 0.8644}, {"fpr": 0.3469, "tpr": 0.8737}, {"fpr": 0.3673, "tpr": 0.8843}, {"fpr": 0.3878, "tpr": 0.8969}, {"fpr": 0.4082, "tpr": 0.9023}, {"fpr": 0.4286, "tpr": 0.9129}, {"fpr": 0.449, "tpr": 0.9189}, {"fpr": 0.4694, "tpr": 0.9242}, {"fpr": 0.4898, "tpr": 0.9282}, {"fpr": 0.5102, "tpr": 0.9342}, {"fpr": 0.5306, "tpr": 0.9415}, {"fpr": 0.551, "tpr": 0.9481}, {"fpr": 0.5714, "tpr": 0.9528}, {"fpr": 0.5918, "tpr": 0.9588}, {"fpr": 0.6122, "tpr": 0.9608}, {"fpr": 0.6327, "tpr": 0.9641}, {"fpr": 0.6531, "tpr": 0.9674}, {"fpr": 0.6735, "tpr": 0.9721}, {"fpr": 0.6939, "tpr": 0.9747}, {"fpr": 0.7143, "tpr": 0.9781}, {"fpr": 0.7347, "tpr": 0.9814}, {"fpr": 0.7551, "tpr": 0.9834}, {"fpr": 0.7755, "tpr": 0.984}, {"fpr": 0.7959, "tpr": 0.986}, {"fpr": 0.8163, "tpr": 0.988}, {"fpr": 0.8367, "tpr": 0.9887}, {"fpr": 0.8571, "tpr": 0.99}, {"fpr": 0.8776, "tpr": 0.9927}, {"fpr": 0.898, "tpr": 0.9947}, {"fpr": 0.9184, "tpr": 0.998}, {"fpr": 0.9388, "tpr": 0.9987}, {"fpr": 0.9592, "tpr": 0.9987}, {"fpr": 0.9796, "tpr": 0.9993}, {"fpr": 1.0, "tpr": 1.0}], "roc_lightgbm": [{"fpr": 0.0, "tpr": 0.0053}, {"fpr": 0.0204, "tpr": 0.3098}, {"fpr": 0.0408, "tpr": 0.4382}, {"fpr": 0.0612, "tpr": 0.5286}, {"fpr": 0.0816, "tpr": 0.5971}, {"fpr": 0.102, "tpr": 0.6483}, {"fpr": 0.1224, "tpr": 0.6755}, {"fpr": 0.1429, "tpr": 0.7021}, {"fpr": 0.1633, "tpr": 0.7347}, {"fpr": 0.1837, "tpr": 0.7566}, {"fpr": 0.2041, "tpr": 0.7786}, {"fpr": 0.2245, "tpr": 0.8012}, {"fpr": 0.2449, "tpr": 0.8211}, {"fpr": 0.2653, "tpr": 0.8391}, {"fpr": 0.2857, "tpr": 0.8531}, {"fpr": 0.3061, "tpr": 0.8657}, {"fpr": 0.3265, "tpr": 0.8816}, {"fpr": 0.3469, "tpr": 0.8896}, {"fpr": 0.3673, "tpr": 0.8976}, {"fpr": 0.3878, "tpr": 0.9056}, {"fpr": 0.4082, "tpr": 0.9162}, {"fpr": 0.4286, "tpr": 0.9222}, {"fpr": 0.449, "tpr": 0.9229}, {"fpr": 0.4694, "tpr": 0.9315}, {"fpr": 0.4898, "tpr": 0.9342}, {"fpr": 0.5102, "tpr": 0.9428}, {"fpr": 0.5306, "tpr": 0.9461}, {"fpr": 0.551, "tpr": 0.9568}, {"fpr": 0.5714, "tpr": 0.9601}, {"fpr": 0.5918, "tpr": 0.9634}, {"fpr": 0.6122, "tpr": 0.9688}, {"fpr": 0.6327, "tpr": 0.9707}, {"fpr": 0.6531, "tpr": 0.9734}, {"fpr": 0.6735, "tpr": 0.9781}, {"fpr": 0.6939, "tpr": 0.9801}, {"fpr": 0.7143, "tpr": 0.982}, {"fpr": 0.7347, "tpr": 0.9827}, {"fpr": 0.7551, "tpr": 0.9834}, {"fpr": 0.7755, "tpr": 0.9867}, {"fpr": 0.7959, "tpr": 0.9887}, {"fpr": 0.8163, "tpr": 0.9887}, {"fpr": 0.8367, "tpr": 0.99}, {"fpr": 0.8571, "tpr": 0.99}, {"fpr": 0.8776, "tpr": 0.9934}, {"fpr": 0.898, "tpr": 0.994}, {"fpr": 0.9184, "tpr": 0.9947}, {"fpr": 0.9388, "tpr": 0.9973}, {"fpr": 0.9592, "tpr": 0.9973}, {"fpr": 0.9796, "tpr": 0.9993}, {"fpr": 1.0, "tpr": 1.0}], "umbral_optimo": 0.4113, "matriz_confusion": [[15756, 5240], [256, 1248]], "n_test": 22500}, "edad": [{"grupo": "<35", "n": 3234, "tasa_impago": 0.1209, "auc": 0.8463}, {"grupo": "35-49", "n": 7326, "tasa_impago": 0.0842, "auc": 0.8458}, {"grupo": "50-64", "n": 7683, "tasa_impago": 0.0523, "auc": 0.8648}, {"grupo": "65+", "n": 4257, "tasa_impago": 0.0221, "auc": 0.8667}], "prescriptivo": {"supuestos": {"tasa": 0.18, "lgd": 0.6, "monto": 10000, "max_default_rate": 0.05}, "umbral_equilibrio": 0.2308, "curva_politica": [{"umbral_pd": 0.02, "tasa_aprobacion": 0.0095, "tasa_impago_aprobados": 0.0, "utilidad_total": 359886.0}, {"umbral_pd": 0.04, "tasa_aprobacion": 0.0592, "tasa_impago_aprobados": 0.003, "utilidad_total": 2099640.0}, {"umbral_pd": 0.06, "tasa_aprobacion": 0.1301, "tasa_impago_aprobados": 0.0048, "utilidad_total": 4350296.0}, {"umbral_pd": 0.08, "tasa_aprobacion": 0.1995, "tasa_impago_aprobados": 0.004, "utilidad_total": 6308286.0}, {"umbral_pd": 0.1, "tasa_aprobacion": 0.2662, "tasa_impago_aprobados": 0.0045, "utilidad_total": 7959474.0}, {"umbral_pd": 0.12, "tasa_aprobacion": 0.3238, "tasa_impago_aprobados": 0.0055, "utilidad_total": 9180773.0}, {"umbral_pd": 0.14, "tasa_aprobacion": 0.374, "tasa_impago_aprobados": 0.0063, "utilidad_total": 10070061.0}, {"umbral_pd": 0.16, "tasa_aprobacion": 0.4183, "tasa_impago_aprobados": 0.0067, "utilidad_total": 10699118.0}, {"umbral_pd": 0.18, "tasa_aprobacion": 0.4565, "tasa_impago_aprobados": 0.0083, "utilidad_total": 11108656.0}, {"umbral_pd": 0.2, "tasa_aprobacion": 0.4906, "tasa_impago_aprobados": 0.0091, "utilidad_total": 11353377.0}, {"umbral_pd": 0.22, "tasa_aprobacion": 0.5213, "tasa_impago_aprobados": 0.0099, "utilidad_total": 11467415.0}, {"umbral_pd": 0.24, "tasa_aprobacion": 0.5479, "tasa_impago_aprobados": 0.0097, "utilidad_total": 11472630.0}, {"umbral_pd": 0.26, "tasa_aprobacion": 0.5719, "tasa_impago_aprobados": 0.0106, "utilidad_total": 11393545.0}, {"umbral_pd": 0.28, "tasa_aprobacion": 0.5933, "tasa_impago_aprobados": 0.0113, "utilidad_total": 11245722.0}, {"umbral_pd": 0.3, "tasa_aprobacion": 0.6122, "tasa_impago_aprobados": 0.0119, "utilidad_total": 11048331.0}, {"umbral_pd": 0.32, "tasa_aprobacion": 0.6333, "tasa_impago_aprobados": 0.0124, "utilidad_total": 10755783.0}, {"umbral_pd": 0.34, "tasa_aprobacion": 0.6521, "tasa_impago_aprobados": 0.0132, "utilidad_total": 10428048.0}, {"umbral_pd": 0.36, "tasa_aprobacion": 0.67, "tasa_impago_aprobados": 0.0142, "utilidad_total": 10055679.0}, {"umbral_pd": 0.38, "tasa_aprobacion": 0.6856, "tasa_impago_aprobados": 0.0148, "utilidad_total": 9674148.0}, {"umbral_pd": 0.4, "tasa_aprobacion": 0.7024, "tasa_impago_aprobados": 0.0158, "utilidad_total": 9205032.0}, {"umbral_pd": 0.42, "tasa_aprobacion": 0.7191, "tasa_impago_aprobados": 0.017, "utilidad_total": 8681231.0}, {"umbral_pd": 0.44, "tasa_aprobacion": 0.7328, "tasa_impago_aprobados": 0.0178, "utilidad_total": 8199352.0}, {"umbral_pd": 0.46, "tasa_aprobacion": 0.7467, "tasa_impago_aprobados": 0.0187, "utilidad_total": 7668031.0}, {"umbral_pd": 0.48, "tasa_aprobacion": 0.7615, "tasa_impago_aprobados": 0.0197, "utilidad_total": 7045833.0}, {"umbral_pd": 0.5, "tasa_aprobacion": 0.7749, "tasa_impago_aprobados": 0.0206, "utilidad_total": 6435688.0}, {"umbral_pd": 0.52, "tasa_aprobacion": 0.7872, "tasa_impago_aprobados": 0.0217, "utilidad_total": 5834476.0}, {"umbral_pd": 0.54, "tasa_aprobacion": 0.7998, "tasa_impago_aprobados": 0.0224, "utilidad_total": 5172445.0}, {"umbral_pd": 0.56, "tasa_aprobacion": 0.8134, "tasa_impago_aprobados": 0.0239, "utilidad_total": 4408983.0}, {"umbral_pd": 0.58, "tasa_aprobacion": 0.8247, "tasa_impago_aprobados": 0.0247, "utilidad_total": 3737431.0}, {"umbral_pd": 0.6, "tasa_aprobacion": 0.8366, "tasa_impago_aprobados": 0.0257, "utilidad_total": 2989512.0}, {"umbral_pd": 0.62, "tasa_aprobacion": 0.8475, "tasa_impago_aprobados": 0.0262, "utilidad_total": 2261983.0}, {"umbral_pd": 0.64, "tasa_aprobacion": 0.8585, "tasa_impago_aprobados": 0.0271, "utilidad_total": 1489962.0}, {"umbral_pd": 0.66, "tasa_aprobacion": 0.8677, "tasa_impago_aprobados": 0.0284, "utilidad_total": 816342.0}, {"umbral_pd": 0.68, "tasa_aprobacion": 0.8776, "tasa_impago_aprobados": 0.0297, "utilidad_total": 48828.0}, {"umbral_pd": 0.7, "tasa_aprobacion": 0.8861, "tasa_impago_aprobados": 0.031, "utilidad_total": -631098.0}, {"umbral_pd": 0.72, "tasa_aprobacion": 0.8949, "tasa_impago_aprobados": 0.0325, "utilidad_total": -1375569.0}, {"umbral_pd": 0.74, "tasa_aprobacion": 0.9033, "tasa_impago_aprobados": 0.0341, "utilidad_total": -2112084.0}, {"umbral_pd": 0.76, "tasa_aprobacion": 0.9103, "tasa_impago_aprobados": 0.0353, "utilidad_total": -2746777.0}, {"umbral_pd": 0.78, "tasa_aprobacion": 0.9178, "tasa_impago_aprobados": 0.0371, "utilidad_total": -3457196.0}, {"umbral_pd": 0.8, "tasa_aprobacion": 0.9245, "tasa_impago_aprobados": 0.0382, "utilidad_total": -4110090.0}, {"umbral_pd": 0.82, "tasa_aprobacion": 0.9308, "tasa_impago_aprobados": 0.0397, "utilidad_total": -4752091.0}, {"umbral_pd": 0.84, "tasa_aprobacion": 0.9376, "tasa_impago_aprobados": 0.0415, "utilidad_total": -5468662.0}, {"umbral_pd": 0.86, "tasa_aprobacion": 0.9476, "tasa_impago_aprobados": 0.0441, "utilidad_total": -6555890.0}, {"umbral_pd": 0.88, "tasa_aprobacion": 0.9576, "tasa_impago_aprobados": 0.0472, "utilidad_total": -7683251.0}], "optimo": {"umbral_pd": 0.24, "tasa_aprobacion": 0.5479, "tasa_impago_aprobados": 0.0097, "utilidad_total": 11472630.0}, "sensibilidad": [{"escenario": "Base", "tasa": 0.18, "lgd": 0.6, "umbral_be": 0.2308, "tasa_aprobacion": 0.5362, "tasa_impago_aprobados": 0.0097, "utilidad_total": 11481802.0}, {"escenario": "LGD alto", "tasa": 0.18, "lgd": 0.8, "umbral_be": 0.1837, "tasa_aprobacion": 0.4627, "tasa_impago_aprobados": 0.0084, "utilidad_total": 9218552.0}, {"escenario": "Tasa alta", "tasa": 0.24, "lgd": 0.6, "umbral_be": 0.2857, "tasa_aprobacion": 0.5982, "tasa_impago_aprobados": 0.0115, "utilidad_total": 18274468.0}, {"escenario": "Tasa baja", "tasa": 0.12, "lgd": 0.6, "umbral_be": 0.1667, "tasa_aprobacion": 0.4314, "tasa_impago_aprobados": 0.0072, "utilidad_total": 5539972.0}]}};
+
+const fmtPct = (x, d=1) => (x*100).toFixed(d) + '%';
+const fmtMoney = (x) => {
+  const abs = Math.abs(x);
+  if (abs >= 1e6) return (x/1e6).toFixed(1) + 'M';
+  if (abs >= 1e3) return (x/1e3).toFixed(0) + 'K';
+  return x.toFixed(0);
+};
+const fmtNum = (x) => x.toLocaleString('es-PE');
+
+function themeVar(name) {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
+
+const tooltip = document.getElementById('tooltip');
+function showTooltip(x, y, rowsHtml) {
+  tooltip.textContent = '';
+  rowsHtml.forEach(r => {
+    const row = document.createElement('div');
+    row.className = 't-row';
+    const label = document.createElement('span');
+    label.textContent = r.label;
+    const val = document.createElement('span');
+    val.className = 't-val';
+    val.textContent = r.value;
+    row.appendChild(label);
+    row.appendChild(val);
+    tooltip.appendChild(row);
+  });
+  tooltip.style.left = (x + 14) + 'px';
+  tooltip.style.top = (y + 14) + 'px';
+  tooltip.classList.add('visible');
+}
+function hideTooltip() { tooltip.classList.remove('visible'); }
+
+const NS = 'http://www.w3.org/2000/svg';
+function el(tag, attrs) {
+  const e = document.createElementNS(NS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  return e;
+}
+
+// ---------- KPI tiles ----------
+function buildKpis() {
+  const opt = DATA.prescriptivo.optimo;
+  const tiles = [
+    { label: 'Clientes analizados', value: fmtNum(DATA.global.n_total) },
+    { label: 'Tasa de impago global', value: fmtPct(DATA.global.tasa_impago_global) },
+    { label: 'AUC del modelo (LightGBM)', value: DATA.modelo.lightgbm.auc.toFixed(3) },
+    { label: 'Umbral de aprobación recomendado', value: 'PD < 23%', sub: fmtPct(opt.tasa_aprobacion, 0) + ' de aprobación' },
+    { label: 'Impago en cartera aprobada', value: fmtPct(opt.tasa_impago_aprobados, 1), sub: 'límite de referencia: 5%' },
+    { label: 'Utilidad esperada (óptimo)', value: 'US$ ' + fmtMoney(opt.utilidad_total), sub: 'sobre ' + fmtNum(DATA.modelo.n_test) + ' solicitantes evaluados' },
+  ];
+  const row = document.getElementById('kpiRow');
+  tiles.forEach(t => {
+    const tile = document.createElement('div');
+    tile.className = 'stat-tile';
+    const l = document.createElement('div'); l.className = 'label'; l.textContent = t.label;
+    const v = document.createElement('div'); v.className = 'value'; v.textContent = t.value;
+    tile.appendChild(l); tile.appendChild(v);
+    if (t.sub) { const s = document.createElement('div'); s.className = 'sub'; s.textContent = t.sub; tile.appendChild(s); }
+    row.appendChild(tile);
+  });
+}
+
+// ---------- generic axis/scale helpers ----------
+function scaleLinear(domain, range) {
+  const [d0, d1] = domain, [r0, r1] = range;
+  return v => r0 + (v - d0) / (d1 - d0) * (r1 - r0);
+}
+
+function niceTicks(min, max, count) {
+  const span = max - min || 1;
+  const step = Math.pow(10, Math.floor(Math.log10(span / count)));
+  const err = span / count / step;
+  const mult = err >= 7.5 ? 10 : err >= 3.5 ? 5 : err >= 1.5 ? 2 : 1;
+  const niceStep = step * mult;
+  const ticks = [];
+  let t = Math.ceil(min / niceStep) * niceStep;
+  for (; t <= max + 1e-9; t += niceStep) ticks.push(Math.round(t * 1e6) / 1e6);
+  return ticks;
+}
+
+// ---------- Bar chart (vertical) ----------
+function barChart(svgId, categories, values, opts) {
+  const svg = document.getElementById(svgId);
+  const W = 520, H = svg.viewBox.baseVal.height || 300;
+  const margin = { top: 16, right: 16, bottom: 56, left: 48 };
+  const innerW = W - margin.left - margin.right;
+  const innerH = H - margin.top - margin.bottom;
+  const maxVal = opts.yMax !== undefined ? opts.yMax : Math.max(...values) * 1.15;
+  const yTicks = niceTicks(0, maxVal, 4);
+  const yScale = scaleLinear([0, yTicks[yTicks.length-1] || maxVal], [innerH, 0]);
+  const band = innerW / categories.length;
+  const barW = Math.min(40, band * 0.55);
+
+  const g = el('g', { transform: `translate(${margin.left},${margin.top})` });
+
+  yTicks.forEach(t => {
+    const y = yScale(t);
+    g.appendChild(el('line', { x1: 0, x2: innerW, y1: y, y2: y, class: 'grid-line' }));
+    const label = el('text', { x: -8, y: y + 3, class: 'axis-label', 'text-anchor': 'end' });
+    label.textContent = opts.yFormat ? opts.yFormat(t) : t;
+    g.appendChild(label);
+  });
+  g.appendChild(el('line', { x1: 0, x2: 0, y1: 0, y2: innerH, class: 'axis-line' }));
+  g.appendChild(el('line', { x1: 0, x2: innerW, y1: innerH, y2: innerH, class: 'axis-line' }));
+
+  categories.forEach((cat, i) => {
+    const cx = band * i + band/2;
+    const v = values[i];
+    const y = yScale(v);
+    const h = innerH - y;
+    const color = opts.colors ? opts.colors[i] : themeVar('--series-1');
+
+    const rect = el('rect', {
+      x: cx - barW/2, y: y, width: barW, height: Math.max(h,1),
+      rx: 4, fill: color, class: 'bar-mark',
+    });
+    rect.style.cursor = 'pointer';
+    rect.addEventListener('pointermove', (ev) => {
+      showTooltip(ev.clientX, ev.clientY, [
+        { label: cat, value: opts.tooltipFormat ? opts.tooltipFormat(v) : v },
+      ]);
+    });
+    rect.addEventListener('pointerleave', hideTooltip);
+    g.appendChild(rect);
+
+    const valLabel = el('text', {
+      x: cx, y: y - 6, class: 'axis-label', 'text-anchor': 'middle',
+    });
+    valLabel.setAttribute('fill', themeVar('--text-secondary'));
+    valLabel.textContent = opts.labelFormat ? opts.labelFormat(v) : v;
+    g.appendChild(valLabel);
+
+    const catLines = (opts.catWrap ? opts.catWrap(cat) : [cat]);
+    catLines.forEach((line, li) => {
+      const catLabel = el('text', {
+        x: cx, y: innerH + 16 + li*11, class: 'axis-label', 'text-anchor': 'middle',
+      });
+      catLabel.textContent = line;
+      g.appendChild(catLabel);
+    });
+  });
+
+  svg.appendChild(g);
+}
+
+// ---------- Line chart (multi-series) ----------
+function lineChart(svgId, series, opts) {
+  // series: [{name, color, points:[{x,y}], }]
+  const svg = document.getElementById(svgId);
+  const W = 520, H = svg.viewBox.baseVal.height || 300;
+  const margin = { top: 16, right: 20, bottom: 40, left: 52 };
+  const innerW = W - margin.left - margin.right;
+  const innerH = H - margin.top - margin.bottom;
+
+  const allX = series.flatMap(s => s.points.map(p => p.x));
+  const allY = series.flatMap(s => s.points.map(p => p.y));
+  const xDomain = opts.xDomain || [Math.min(...allX), Math.max(...allX)];
+  const yDomain = opts.yDomain || [Math.min(0, ...allY), Math.max(...allY) * 1.1];
+
+  const xScale = scaleLinear(xDomain, [0, innerW]);
+  const yScale = scaleLinear(yDomain, [innerH, 0]);
+
+  const g = el('g', { transform: `translate(${margin.left},${margin.top})` });
+
+  const yTicks = niceTicks(yDomain[0], yDomain[1], 5);
+  yTicks.forEach(t => {
+    const y = yScale(t);
+    g.appendChild(el('line', { x1: 0, x2: innerW, y1: y, y2: y, class: 'grid-line' }));
+    const label = el('text', { x: -8, y: y + 3, class: 'axis-label', 'text-anchor': 'end' });
+    label.textContent = opts.yFormat ? opts.yFormat(t) : t;
+    g.appendChild(label);
+  });
+  const xTicks = niceTicks(xDomain[0], xDomain[1], 5);
+  xTicks.forEach(t => {
+    const x = xScale(t);
+    const label = el('text', { x: x, y: innerH + 16, class: 'axis-label', 'text-anchor': 'middle' });
+    label.textContent = opts.xFormat ? opts.xFormat(t) : t;
+    g.appendChild(label);
+  });
+  g.appendChild(el('line', { x1: 0, x2: 0, y1: 0, y2: innerH, class: 'axis-line' }));
+  g.appendChild(el('line', { x1: 0, x2: innerW, y1: innerH, y2: innerH, class: 'axis-line' }));
+
+  if (opts.refLineX !== undefined) {
+    const x = xScale(opts.refLineX);
+    g.appendChild(el('line', { x1: x, x2: x, y1: 0, y2: innerH, stroke: themeVar('--text-muted'), 'stroke-dasharray': '3,3', 'stroke-width': 1 }));
+    const lbl = el('text', { x: x + 4, y: 10, class: 'axis-label' });
+    lbl.textContent = opts.refLineLabel || '';
+    lbl.setAttribute('fill', themeVar('--text-secondary'));
+    g.appendChild(lbl);
+  }
+  if (opts.refLineY !== undefined) {
+    const y = yScale(opts.refLineY);
+    g.appendChild(el('line', { x1: 0, x2: innerW, y1: y, y2: y, stroke: themeVar('--status-critical'), 'stroke-dasharray': '3,3', 'stroke-width': 1 }));
+    const lbl = el('text', { x: innerW - 4, y: y - 4, class: 'axis-label', 'text-anchor': 'end' });
+    lbl.textContent = opts.refLineYLabel || '';
+    lbl.setAttribute('fill', themeVar('--status-critical'));
+    g.appendChild(lbl);
+  }
+
+  series.forEach(s => {
+    const d = s.points.map((p, i) => (i === 0 ? 'M' : 'L') + xScale(p.x).toFixed(2) + ',' + yScale(p.y).toFixed(2)).join(' ');
+    g.appendChild(el('path', { d, fill: 'none', stroke: s.color, 'stroke-width': 2, 'stroke-linejoin': 'round', 'stroke-linecap': 'round' }));
+    const last = s.points[s.points.length - 1];
+    g.appendChild(el('circle', { cx: xScale(last.x), cy: yScale(last.y), r: 4, fill: s.color, stroke: themeVar('--surface-1'), 'stroke-width': 2 }));
+  });
+
+  // crosshair + shared tooltip
+  const hitRect = el('rect', { x: 0, y: 0, width: innerW, height: innerH, fill: 'transparent' });
+  const crosshair = el('line', { x1: 0, x2: 0, y1: 0, y2: innerH, stroke: themeVar('--text-muted'), 'stroke-width': 1, visibility: 'hidden' });
+  hitRect.addEventListener('pointermove', (ev) => {
+    const rect = svg.getBoundingClientRect();
+    const scaleX = W / rect.width;
+    const px = (ev.clientX - rect.left) * scaleX - margin.left;
+    const xVal = xScale.invert ? xScale.invert(px) : null;
+    // find nearest x among first series' points
+    const pts = series[0].points;
+    let nearest = pts[0], nd = Infinity;
+    pts.forEach(p => {
+      const dist = Math.abs(xScale(p.x) - px);
+      if (dist < nd) { nd = dist; nearest = p; }
+    });
+    const xPix = xScale(nearest.x);
+    crosshair.setAttribute('x1', xPix); crosshair.setAttribute('x2', xPix);
+    crosshair.setAttribute('visibility', 'visible');
+    const rows = series.map(s => {
+      let closest = s.points[0], cd = Infinity;
+      s.points.forEach(p => { const dd = Math.abs(p.x - nearest.x); if (dd < cd) { cd = dd; closest = p; } });
+      return { label: s.name, value: opts.tooltipYFormat ? opts.tooltipYFormat(closest.y) : closest.y };
+    });
+    rows.unshift({ label: opts.tooltipXLabel || 'x', value: opts.tooltipXFormat ? opts.tooltipXFormat(nearest.x) : nearest.x });
+    showTooltip(ev.clientX, ev.clientY, rows);
+  });
+  hitRect.addEventListener('pointerleave', () => { crosshair.setAttribute('visibility', 'hidden'); hideTooltip(); });
+  g.appendChild(crosshair);
+  g.appendChild(hitRect);
+
+  svg.appendChild(g);
+}
+
+// ---------- Build: Segmentos ----------
+const SEGMENT_SHORT_NAMES = {
+  'Alto riesgo': ['Alto', 'riesgo'],
+  'Bajo riesgo (patrimonio alto)': ['Patrimonio', 'alto'],
+  'Bajo riesgo (perfil modesto)': ['Perfil', 'modesto'],
+  'Bajo riesgo (DebtRatio anómalo)': ['DebtRatio', 'anómalo'],
+};
+function buildSegmentos() {
+  const segs = DATA.segmentos;
+  const colors = [themeVar('--series-1'), themeVar('--series-2'), themeVar('--series-3'), themeVar('--series-4')];
+  const catWrap = (name) => SEGMENT_SHORT_NAMES[name] || [name];
+  barChart('chartSegmentos', segs.map(s => s.nombre), segs.map(s => s.tasa_impago), {
+    colors, yFormat: v => fmtPct(v, 0), labelFormat: v => fmtPct(v, 1),
+    tooltipFormat: v => fmtPct(v, 2), catWrap,
+  });
+  barChart('chartSegmentosPct', segs.map(s => s.nombre), segs.map(s => s.pct_total/100), {
+    colors, yFormat: v => fmtPct(v, 0), labelFormat: v => fmtPct(v, 0),
+    tooltipFormat: v => fmtPct(v, 1), catWrap,
+  });
+
+  const legend = document.getElementById('legendSegmentos');
+  segs.forEach((s, i) => {
+    const key = document.createElement('span'); key.className = 'key';
+    const sw = document.createElement('span'); sw.className = 'swatch bar'; sw.style.background = colors[i];
+    const txt = document.createElement('span'); txt.textContent = s.nombre;
+    key.appendChild(sw); key.appendChild(txt);
+    legend.appendChild(key);
+  });
+
+  const table = document.getElementById('tableSegmentos');
+  const head = ['Segmento','n','% cartera','Tasa impago','Edad prom.','Utilización','Ingreso prom.'];
+  const thead = document.createElement('tr');
+  head.forEach(h => { const th = document.createElement('th'); th.textContent = h; thead.appendChild(th); });
+  table.appendChild(thead);
+  segs.forEach((s, i) => {
+    const tr = document.createElement('tr');
+    const cells = [s.nombre, fmtNum(s.n), fmtPct(s.pct_total/100,1), fmtPct(s.tasa_impago,2), s.edad_prom.toFixed(1), fmtPct(s.utilizacion_prom,0), 'US$ '+fmtNum(Math.round(s.ingreso_prom))];
+    cells.forEach((c, ci) => { const td = document.createElement('td'); td.textContent = c; tr.appendChild(td); });
+    table.appendChild(tr);
+  });
+}
+
+// ---------- Build: Modelo (ROC + edad) ----------
+function buildModelo() {
+  const m = DATA.modelo;
+  const callouts = document.getElementById('modelCallouts');
+  const items = [
+    { label: 'AUC — Regresión logística (baseline)', value: m.logreg.auc.toFixed(3), win: false },
+    { label: 'AUC — LightGBM (modelo final)', value: m.lightgbm.auc.toFixed(3), win: true },
+    { label: 'KS — LightGBM', value: m.lightgbm.ks.toFixed(3), win: false },
+  ];
+  items.forEach(it => {
+    const c = document.createElement('div'); c.className = 'callout' + (it.win ? ' winner' : '');
+    const l = document.createElement('div'); l.className = 'label'; l.textContent = it.label;
+    const v = document.createElement('div'); v.className = 'value'; v.textContent = it.value;
+    c.appendChild(l); c.appendChild(v);
+    callouts.appendChild(c);
+  });
+
+  lineChart('chartRoc', [
+    { name: 'Regresión logística', color: themeVar('--series-2'), points: m.roc_logreg.map(p => ({x:p.fpr,y:p.tpr})) },
+    { name: 'LightGBM', color: themeVar('--series-1'), points: m.roc_lightgbm.map(p => ({x:p.fpr,y:p.tpr})) },
+  ], {
+    xDomain: [0,1], yDomain: [0,1],
+    xFormat: v => v.toFixed(1), yFormat: v => v.toFixed(1),
+    tooltipXLabel: 'FPR', tooltipXFormat: v => v.toFixed(2), tooltipYFormat: v => v.toFixed(3),
+  });
+  const legendRoc = document.getElementById('legendRoc');
+  [['Regresión logística','--series-2'],['LightGBM','--series-1']].forEach(([name,varName]) => {
+    const key = document.createElement('span'); key.className = 'key';
+    const sw = document.createElement('span'); sw.className = 'swatch'; sw.style.background = themeVar(varName);
+    const txt = document.createElement('span'); txt.textContent = name;
+    key.appendChild(sw); key.appendChild(txt);
+    legendRoc.appendChild(key);
+  });
+
+  const edad = DATA.edad;
+  barChart('chartEdad', edad.map(e => e.grupo), edad.map(e => e.tasa_impago), {
+    colors: ['#86b6ef','#5598e7','#2a78d6','#184f95'].map((c,i)=> i<2 ? c : themeVar('--series-1')),
+    yFormat: v => fmtPct(v,0), labelFormat: v => fmtPct(v,1), tooltipFormat: v => fmtPct(v,2),
+  });
+
+  const tc = document.getElementById('tableConfusion');
+  const cm = m.matriz_confusion;
+  const rows = [
+    ['', 'Predicho: no impago', 'Predicho: impago'],
+    ['Real: no impago', fmtNum(cm[0][0]), fmtNum(cm[0][1])],
+    ['Real: impago', fmtNum(cm[1][0]), fmtNum(cm[1][1])],
+  ];
+  rows.forEach((r, ri) => {
+    const tr = document.createElement('tr');
+    r.forEach((c, ci) => { const cell = document.createElement(ri===0?'th':'td'); cell.textContent = c; tr.appendChild(cell); });
+    tc.appendChild(tr);
+  });
+
+  const te = document.getElementById('tableEdad');
+  const head = ['Tramo de edad','n','Tasa impago real','AUC'];
+  const thead = document.createElement('tr');
+  head.forEach(h => { const th = document.createElement('th'); th.textContent = h; thead.appendChild(th); });
+  te.appendChild(thead);
+  edad.forEach(e => {
+    const tr = document.createElement('tr');
+    [e.grupo, fmtNum(e.n), fmtPct(e.tasa_impago,2), e.auc.toFixed(3)].forEach(c => {
+      const td = document.createElement('td'); td.textContent = c; tr.appendChild(td);
+    });
+    te.appendChild(tr);
+  });
+}
+
+// ---------- Build: Prescriptivo ----------
+function buildPrescriptivo() {
+  const p = DATA.prescriptivo;
+  const curve = p.curva_politica;
+
+  lineChart('chartUtilidad', [
+    { name: 'Utilidad esperada total', color: themeVar('--series-1'), points: curve.map(r => ({x:r.umbral_pd, y:r.utilidad_total})) },
+  ], {
+    xDomain: [0, 0.9],
+    xFormat: v => v.toFixed(1), yFormat: v => 'US$ ' + fmtMoney(v),
+    tooltipXLabel: 'Umbral PD', tooltipXFormat: v => v.toFixed(2), tooltipYFormat: v => 'US$ ' + fmtMoney(v),
+    refLineX: p.umbral_equilibrio, refLineLabel: 'Óptimo (PD=' + p.umbral_equilibrio.toFixed(2) + ')',
+  });
+
+  lineChart('chartRiesgo', [
+    { name: 'Tasa de impago aprobados', color: themeVar('--series-1'), points: curve.map(r => ({x:r.umbral_pd, y:r.tasa_impago_aprobados})) },
+  ], {
+    xDomain: [0, 0.9], yDomain: [0, Math.max(...curve.map(r=>r.tasa_impago_aprobados))*1.15],
+    xFormat: v => v.toFixed(1), yFormat: v => fmtPct(v,0),
+    tooltipXLabel: 'Umbral PD', tooltipXFormat: v => v.toFixed(2), tooltipYFormat: v => fmtPct(v,2),
+    refLineX: p.umbral_equilibrio, refLineLabel: '',
+    refLineY: p.supuestos.max_default_rate, refLineYLabel: 'Límite de riesgo (5%)',
+  });
+
+  const opt = p.optimo;
+  const rec = document.getElementById('recomendacion');
+  rec.textContent = 'Recomendación: aprobar solicitudes con PD estimada menor a '
+    + Math.round(opt.umbral_pd*100) + '% (≈' + fmtPct(opt.tasa_aprobacion,0) + ' de aprobación). '
+    + 'Esta política es el óptimo económico bajo los supuestos declarados: utilidad esperada de US$ '
+    + fmtMoney(opt.utilidad_total) + ' con solo ' + fmtPct(opt.tasa_impago_aprobados,1) + ' de impago en la cartera aprobada — '
+    + 'muy por debajo del límite de riesgo de referencia (5%), que por lo tanto no resulta vinculante.';
+
+  const table = document.getElementById('tableSensibilidad');
+  const head = ['Escenario','Tasa','LGD','Umbral equilibrio','Aprobación','Impago aprobados','Utilidad total'];
+  const thead = document.createElement('tr');
+  head.forEach(h => { const th = document.createElement('th'); th.textContent = h; thead.appendChild(th); });
+  table.appendChild(thead);
+  p.sensibilidad.forEach(s => {
+    const tr = document.createElement('tr');
+    [s.escenario, fmtPct(s.tasa,0), fmtPct(s.lgd,0), s.umbral_be.toFixed(3), fmtPct(s.tasa_aprobacion,1), fmtPct(s.tasa_impago_aprobados,2), 'US$ '+fmtMoney(s.utilidad_total)].forEach(c => {
+      const td = document.createElement('td'); td.textContent = c; tr.appendChild(td);
+    });
+    table.appendChild(tr);
+  });
+}
+
+function buildFooter() {
+  const foot = document.getElementById('guia');
+  foot.innerHTML = '';
+  const h = document.createElement('strong');
+  h.textContent = 'Guía de uso del tablero';
+  const p1 = document.createElement('p');
+  p1.textContent = 'Cada sección corresponde a una parte del Proyecto Grupal: (1) segmentación de clientes (P2), (2) desempeño del modelo predictivo (P3), (3) política de aprobación de crédito (P4). Pase el cursor sobre las barras o líneas para ver el valor exacto; use "Ver tabla" para acceder a los datos completos sin depender del gráfico.';
+  const p2 = document.createElement('p');
+  p2.textContent = 'Todas las cifras provienen de los notebooks en notebooks/ (P1–P4), ejecutados de punta a punta sobre el conjunto de prueba (22,500 clientes) salvo la segmentación de P2, que usa el dataset completo (150,000). Supuestos económicos de la sección 3 documentados en docs/model_card.md y en el notebook P4.';
+  const p3 = document.createElement('p');
+  p3.textContent = 'Este tablero es un archivo HTML autocontenido (sin dependencias externas): se abre directamente en cualquier navegador, sin servidor ni conexión a internet.';
+  foot.appendChild(h); foot.appendChild(p1); foot.appendChild(p2); foot.appendChild(p3);
+}
+
+function render() {
+  document.getElementById('kpiRow').innerHTML = '';
+  document.getElementById('chartSegmentos').innerHTML = '';
+  document.getElementById('chartSegmentosPct').innerHTML = '';
+  document.getElementById('legendSegmentos').innerHTML = '';
+  document.getElementById('tableSegmentos').innerHTML = '';
+  document.getElementById('modelCallouts').innerHTML = '';
+  document.getElementById('chartRoc').innerHTML = '';
+  document.getElementById('legendRoc').innerHTML = '';
+  document.getElementById('chartEdad').innerHTML = '';
+  document.getElementById('tableConfusion').innerHTML = '';
+  document.getElementById('tableEdad').innerHTML = '';
+  document.getElementById('chartUtilidad').innerHTML = '';
+  document.getElementById('chartRiesgo').innerHTML = '';
+  document.getElementById('tableSensibilidad').innerHTML = '';
+
+  buildKpis();
+  buildSegmentos();
+  buildModelo();
+  buildPrescriptivo();
+  buildFooter();
+}
+
+function currentTheme() {
+  const explicit = document.documentElement.getAttribute('data-theme');
+  if (explicit) return explicit;
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+}
+
+const toggleBtn = document.getElementById('themeToggle');
+toggleBtn.textContent = currentTheme() === 'dark' ? 'Modo claro' : 'Modo oscuro';
+toggleBtn.addEventListener('click', () => {
+  const next = currentTheme() === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  toggleBtn.textContent = next === 'dark' ? 'Modo claro' : 'Modo oscuro';
+  render();
+});
+
+render();
+</script>
+</body>
+</html>
