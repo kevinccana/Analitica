@@ -1,11 +1,3 @@
-# Datos (se versionan por referencia/hash, no el contenido)
-datos/raw/*
-datos/processed/*
-datos/external/*
-!datos/raw/.gitkeep
-!datos/processed/.gitkeep
-!datos/external/.gitkeep
-
 # Modelos serializados grandes
 notebooks/models/*.pkl
 notebooks/models/*.joblib
@@ -29,6 +21,3 @@ mlflow.db
 .DS_Store
 Thumbs.db
 .vscode/
-
-# Configuración local del asistente (no es parte del proyecto)
-.claude/
