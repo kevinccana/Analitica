@@ -640,11 +640,9 @@ function buildFooter() {
   const h = document.createElement('strong');
   h.textContent = 'Guía de uso del tablero';
   const p1 = document.createElement('p');
-  p1.textContent = 'Cada sección corresponde a una parte del Proyecto Grupal: (1) segmentación de clientes (P2), (2) desempeño del modelo predictivo (P3), (3) política de aprobación de crédito (P4). Pase el cursor sobre las barras o líneas para ver el valor exacto; use "Ver tabla" para acceder a los datos completos sin depender del gráfico.';
+  p1.textContent = 'Cada sección corresponde a una parte del Proyecto: (1) segmentación de clientes (P2), (2) desempeño del modelo predictivo (P3), (3) política de aprobación de crédito (P4). Pase el cursor sobre las barras o líneas para ver el valor exacto; use "Ver tabla" para acceder a los datos completos sin depender del gráfico.';
   const p2 = document.createElement('p');
   p2.textContent = 'Todas las cifras provienen de los notebooks en notebooks/ (P1–P4), ejecutados de punta a punta sobre el conjunto de prueba (22,500 clientes) salvo la segmentación de P2, que usa el dataset completo (150,000). Supuestos económicos de la sección 3 documentados en docs/model_card.md y en el notebook P4.';
-  const p3 = document.createElement('p');
-  p3.textContent = 'Este tablero es un archivo HTML autocontenido (sin dependencias externas): se abre directamente en cualquier navegador, sin servidor ni conexión a internet.';
   foot.appendChild(h); foot.appendChild(p1); foot.appendChild(p2); foot.appendChild(p3);
 }
 
